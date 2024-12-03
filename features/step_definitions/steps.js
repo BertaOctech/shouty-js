@@ -1,17 +1,56 @@
-const { Given, When, Then } = require('cucumber')
-const assert = require('assert')
+const { Given, When, Then, Before } = require('@cucumber/cucumber')
+const { assertThat, is, equalTo} = require('hamjest')
 
-Given('Lucy is located {int}m from Sean', function (distance) {
-  this.lucy = new Person
-  this.sean = new Person
-  this.lucy.moveTo(distance)
+const { Network, Person } = require('../../src/shouty')
+
+
+Given("the range is {int}", function (range) {
+	this.network.range = range
 })
 
-When('Sean shouts {string}', function (message) {
-  this.sean.shout(message)
-  this.message = message
+Given('people are located at', function (dataTable) {
+	dataTable.transpose().hashes().map((person) => {
+	newPerson = new Person(person.name, this.network, person.location)
+	this.people[person.name] = newPerson
+})
+})
+Given('a person named {word}', function (name) {
+	newPerson = new Person(name, this.network, 0)
+	this.people[name] = newPerson
+});
+
+Given('{person} has bought {int} credits', function (person, credits) {
+	person.credits = credits
+});
+
+Then('{person} should not hear a shout', function (listener) {
+	assertThat(listener.messagesHeard().length, is(0))
 })
 
-Then('Lucy hears Sean’s message', function () {
-  assert.deepEqual(this.lucy.messagesHeard(), [this.message])
+Then('{person} should hear a shout', function (listener) {
+	assertThat(listener.messagesHeard().length, is(1))
 })
+
+Then('{person} hears the following messages:',
+	function (listener, expectedMessages) {
+		let actualMessages = listener.messagesHeard().map((message) => [message])
+		assertThat(actualMessages, equalTo(expectedMessages.raw()))
+	}
+)
+Then('{person} hears all {person}\'s messages', function (listener, shouter) {
+	assertThat(
+		listener.messagesHeard(),
+		equalTo(this.messagesShoutedBy[shouter.name])
+	)
+})
+
+Then('{person} should hear {person}\'s message', function (listener, shouter) {
+	assertThat(
+		listener.messagesHeard()[0],
+		equalTo(this.messagesShoutedBy[shouter.name][0])
+	)
+})
+
+Then('{person} should have {int} credits', function (person,credits) {
+	assertThat(this.people[person.name].credits, is(credits))
+});
