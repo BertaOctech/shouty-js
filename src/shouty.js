@@ -52,7 +52,7 @@ class Network {
 
 	_deductCredits(shortEnough, message, shouter) {
 		if (!shortEnough) shouter.credits -= 2
-		shouter.credits -=(message.match(/buy/gi) || []).length * 5
+		shouter.credits -=(message.match(/buy/i) || []).length * 5
 	}
 }
 

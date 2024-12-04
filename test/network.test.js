@@ -72,6 +72,29 @@ describe('Network', function () {
       assertThat(sean.credits, equalTo(95))
     })
 
+    it("deducts 5 credits for mentioning the word 'Buy'", () => {
+      const message = 'Come Buy these awesome croissants'
+
+      const sean  = new Person("Sean", network, 0, 100)
+      const laura = new Person("Laura", network, 10)
+
+      network.subscribe(laura)
+      network.broadcast(message, sean)
+
+      assertThat(sean.credits, equalTo(95))
+    })
+    
+    it("deducts 5 credits even if you mention the word 'buy' several times", () => {
+      const message = 'Come buy buy buy these awesome croissants'
+
+      const sean  = new Person("Sean", network, 0, 100)
+      const laura = new Person("Laura", network, 10)
+
+      network.subscribe(laura)
+      network.broadcast(message, sean)
+
+      assertThat(sean.credits, equalTo(95))
+    })
   })
 
 })
